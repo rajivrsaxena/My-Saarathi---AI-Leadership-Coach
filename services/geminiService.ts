@@ -1,41 +1,45 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { PerformanceData, CoachingReport, LeadershipPersona, AppLanguage } from '../types';
-import { SYSTEM_INSTRUCTION, PERSONA_CONFIGS } from '../constants';
+import { PerformanceData, CoachingReport, LeadershipPersona, AppLanguage, CoachingMode } from '../types';
+import { SYSTEM_INSTRUCTION, PERSONA_CONFIGS, MODE_CONFIGS } from '../constants';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generateCoachingReport = async (
   data: PerformanceData, 
   persona: LeadershipPersona,
-  language: AppLanguage
+  language: AppLanguage,
+  mode: CoachingMode
 ): Promise<CoachingReport> => {
   const model = 'gemini-3-pro-preview';
   
   const personaInstruction = PERSONA_CONFIGS[persona];
+  const modeInstruction = MODE_CONFIGS[mode];
+  
   const combinedSystemInstruction = `
     ${SYSTEM_INSTRUCTION}
     
-    CURRENT ACTIVE PERSONA: ${persona}
+    COACHING PERSPECTIVE: ${mode}
+    ${modeInstruction}
+    
+    ACTIVE LEADERSHIP PERSONA: ${persona}
     ${personaInstruction}
     
     CRITICAL RULES:
-    1. DO NOT REPEAT THE INPUT DATA. The user already knows the numbers. Tell them what the numbers *mean* for the person's future.
-    2. LANGUAGE: Use ${language}. Keep it conversational but professional. No jargon tags like "According to the SCARF model...". Just give the advice.
-    3. REFERENCES: If you used specific research or models to formulate your advice, list them ONLY in the 'references' array.
-    4. PROBLEM STATEMENT: Be bold. Tell the leader exactly what the "invisible" problem is.
+    1. DO NOT REPEAT THE INPUT DATA. Tell them what the numbers *mean* for the future.
+    2. LANGUAGE: Use ${language}. Keep it conversational.
+    3. SELF-COACHING SPECIAL: If mode is 'Self', the 'overallAssessment' should be phrased as a personal reflection. The 'empathyNote' should be a self-compassion check.
+    4. REFERENCES: List research models used ONLY in the 'references' array.
   `;
 
-  // Updated prompt to include behavioral sentiment data
   const prompt = `
-    Colleague Name: ${data.employeeName}
-    Strategic Role: ${data.role}
+    Subject: ${data.employeeName}
+    Role: ${data.role}
     Metrics: ${JSON.stringify(data.metrics)}
-    Context/Observations: ${data.context || 'Regular performance cycle.'}
-    Sentiment: ${data.sentiment} - ${data.sentimentNotes}
+    Context: ${data.context || 'Regular cycle.'}
+    State: ${data.sentiment} (${data.sentimentNotes})
 
-    As a ${persona}, provide a deep coaching assessment. 
-    Focus on things the manager might have missed. 
+    As a ${persona} in ${mode} mode, provide a deep assessment. 
     Output in ${language}.
   `;
 
@@ -51,18 +55,15 @@ export const generateCoachingReport = async (
         properties: {
           overallAssessment: { 
             type: Type.STRING,
-            description: "A narrative deep-dive into the 'hidden problem' and how to fix it. Use plain language."
+            description: "Deep narrative dive into hidden problems and solutions."
           },
-          empathyNote: { type: Type.STRING, description: "A high-empathy 'leader-to-leader' perspective." },
+          empathyNote: { type: Type.STRING, description: "A high-empathy perspective or self-compassion note." },
           performanceGapAnalysis: { type: Type.STRING },
-          // Added sentimentInsight to capture the emotional essence of the person
-          sentimentInsight: { 
-            type: Type.STRING, 
-            description: "A punchy, insightful quote about the person's current headspace." 
-          },
+          sentimentInsight: { type: Type.STRING },
           coachingConversationStarters: {
             type: Type.ARRAY,
-            items: { type: Type.STRING }
+            items: { type: Type.STRING },
+            description: "If mode=Manager, questions for the employee. If mode=Self, questions for introspection."
           },
           actionPlan: {
             type: Type.ARRAY,
@@ -83,8 +84,7 @@ export const generateCoachingReport = async (
           },
           references: {
             type: Type.ARRAY,
-            items: { type: Type.STRING },
-            description: "Formal citations, model names (e.g. 'Radical Candor'), and research links used."
+            items: { type: Type.STRING }
           }
         },
         required: ['overallAssessment', 'empathyNote', 'performanceGapAnalysis', 'sentimentInsight', 'coachingConversationStarters', 'actionPlan', 'n8nPayload', 'references']
@@ -106,17 +106,18 @@ export const chatWithLeader = async (
   history: {role: 'user' | 'model', text: string}[], 
   message: string, 
   persona: LeadershipPersona,
-  language: AppLanguage
+  language: AppLanguage,
+  mode: CoachingMode
 ) => {
   const model = 'gemini-3-pro-preview';
   
-  const personaInstruction = PERSONA_CONFIGS[persona];
   const combinedSystemInstruction = `
     ${SYSTEM_INSTRUCTION}
+    COACHING PERSPECTIVE: ${mode}
+    ${MODE_CONFIGS[mode]}
     ACTIVE PERSONA: ${persona}
-    ${personaInstruction}
-    LANGUAGE: Respond in ${language}. 
-    Maintain the chosen persona's specific coaching style throughout.
+    ${PERSONA_CONFIGS[persona]}
+    LANGUAGE: ${language}.
   `;
 
   const chat = ai.chats.create({

@@ -7,6 +7,7 @@ export enum FeedbackTone {
 }
 
 export type LeadershipPersona = 'Direct Coach' | 'Empathetic Mentor' | 'Strategic Advisor';
+export type CoachingMode = 'Manager' | 'Self';
 export type SharePermission = 'view' | 'edit';
 export type AppLanguage = 'English' | 'Hinglish' | 'Tamil' | 'Malayalam' | 'Gujarati' | 'Kannada' | 'Bengali';
 
@@ -32,7 +33,6 @@ export interface PerformanceData {
   metrics: Metric[];
   observations: SubjectiveObservation[];
   context?: string;
-  // Added sentiment and sentimentNotes fields
   sentiment: SentimentType;
   sentimentNotes: string;
 }
@@ -49,13 +49,12 @@ export interface CoachingReport {
   overallAssessment: string;
   empathyNote: string;
   performanceGapAnalysis: string;
-  // Added sentimentInsight for behavioral highlights
   sentimentInsight: string;
   coachingConversationStarters: string[];
   actionPlan: CoachingAction[];
   n8nPayload: string;
   learningSources?: string[];
-  references?: string[]; // New field for citations/models
+  references?: string[]; 
   metricSnapshot?: PerformanceData; 
 }
 
