@@ -1,27 +1,21 @@
-import type { PerformanceData, CoachingReport, LeadershipPersona, AppLanguage, CoachingMode, GroundingSource } from '../types';
+
+import { GoogleGenAI, Type } from "@google/genai";
+import { PerformanceData, CoachingReport, LeadershipPersona, AppLanguage, CoachingMode, GroundingSource } from '../types';
 import { SYSTEM_INSTRUCTION, PERSONA_CONFIGS, MODE_CONFIGS } from '../constants';
 
-const ensureServer = () => {
-  if (typeof window !== 'undefined') {
-    throw new Error('geminiService must be called from a server-side environment');
-  }
-};
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generateCoachingReport = async (
-  data: PerformanceData,
+  data: PerformanceData, 
   persona: LeadershipPersona,
   language: AppLanguage,
   mode: CoachingMode
 ): Promise<CoachingReport> => {
-  ensureServer();
-  const { GoogleGenAI, Type } = await import('@google/genai');
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
   const model = 'gemini-3-pro-preview';
-
+  
   const personaInstruction = PERSONA_CONFIGS[persona];
   const modeInstruction = MODE_CONFIGS[mode];
-
+  
   const combinedSystemInstruction = `
     ${SYSTEM_INSTRUCTION}
     
@@ -55,7 +49,7 @@ export const generateCoachingReport = async (
       systemInstruction: combinedSystemInstruction,
       thinkingConfig: { thinkingBudget: 2000 },
       tools: [{ googleSearch: {} }],
-      responseMimeType: 'application/json',
+      responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
         properties: {
@@ -105,26 +99,22 @@ export const generateCoachingReport = async (
 
   try {
     const text = response.text;
-    if (!text) throw new Error('Empty response from AI');
+    if (!text) throw new Error("Empty response from AI");
     const parsed = JSON.parse(text);
-    return { ...parsed, groundingSources } as CoachingReport;
+    return { ...parsed, groundingSources };
   } catch (e) {
-    console.error('Failed to parse AI response', e);
-    throw new Error('Invalid response format from AI');
+    console.error("Failed to parse AI response", e);
+    throw new Error("Invalid response format from AI");
   }
 };
 
 export const chatWithLeader = async (
-  history: {role: 'user' | 'model', text: string}[],
-  message: string,
+  history: {role: 'user' | 'model', text: string}[], 
+  message: string, 
   persona: LeadershipPersona,
   language: AppLanguage,
   mode: CoachingMode
 ) => {
-  ensureServer();
-  const { GoogleGenAI } = await import('@google/genai');
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
   const model = 'gemini-3-pro-preview';
   const chat = ai.chats.create({
     model,

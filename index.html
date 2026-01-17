@@ -5,32 +5,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LDR-AI | Mature Leadership Coaching</title>
+    <!-- Premium Font Pairing: Crimson Pro (Sophisticated Serif) + Plus Jakarta Sans (Modern Geometric Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Modernized Font Stack with Calibri as Primary */
         :root {
-            --font-stack: "Calibri", "Candara", "Segoe UI", "Optima", "Arial", sans-serif;
+            /* Clean, premium geometric sans for UI/Data */
+            --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            /* Authoritative, scholarly serif for wisdom and headers */
+            --font-serif: 'Crimson Pro', Georgia, serif;
         }
 
         body { 
-            font-family: var(--font-stack);
+            font-family: var(--font-sans);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            letter-spacing: -0.015em;
+            background-color: #f8fafc;
         }
 
-        /* Ensure Tailwind's font-sans utility uses our stack */
+        .font-serif {
+            font-family: var(--font-serif) !important;
+            letter-spacing: -0.01em;
+        }
+
         .font-sans {
-            font-family: var(--font-stack) !important;
+            font-family: var(--font-sans) !important;
+        }
+
+        h1, h2, h3, h4, .brand-text {
+            font-family: var(--font-serif);
+            font-weight: 700;
         }
 
         .glass { 
-            background: rgba(255, 255, 255, 0.7); 
-            backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
+            background: rgba(255, 255, 255, 0.75); 
+            backdrop-filter: blur(14px); 
+            border: 1px solid rgba(255, 255, 255, 0.4); 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
         }
         
         @media print {
-            body { background: white; font-family: Calibri, sans-serif; }
+            body { background: white; font-family: var(--font-serif); }
             header, aside, footer, .no-print, nav, button { display: none !important; }
             main { padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: none !important; }
             .prose { max-width: none !important; }
@@ -38,23 +56,42 @@
             .shadow-sm, .shadow-xl { box-shadow: none !important; }
             .grid { display: block !important; }
             .lg\:col-span-3, .lg\:col-span-4, .lg\:col-span-1 { width: 100% !important; }
-            h2 { font-size: 24pt !important; }
+            h2 { font-size: 28pt !important; }
             p { font-size: 12pt !important; }
         }
 
-        /* Custom scrollbar for a premium feel */
         .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
             background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
+            background: #cbd5e1;
             border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #cbd5e1;
+            background: #94a3b8;
+        }
+
+        .fade-in-wisdom {
+            animation: fadeInWisdom 1.4s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        }
+
+        @keyframes fadeInWisdom {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        input, select {
+            letter-spacing: -0.01em;
+        }
+
+        /* High-end decorative accents */
+        .gold-highlight {
+            color: #B8860B;
+            position: relative;
+            display: inline-block;
         }
     </style>
 <script type="importmap">
@@ -69,7 +106,7 @@
 }
 </script>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="bg-slate-50 text-slate-900 selection:bg-amber-100 selection:text-amber-900">
     <div id="root"></div>
 </body>
 </html>
