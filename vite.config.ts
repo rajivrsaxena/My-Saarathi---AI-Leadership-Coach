@@ -21,3 +21,5 @@ export default defineConfig(({ mode }) => {
       }
     };
 });
+base: "./",        // 👈 VERY IMPORTANT FOR VERCEL
+});
